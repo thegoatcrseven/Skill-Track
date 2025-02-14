@@ -88,10 +88,7 @@ Les contributions sont les bienvenues ! N'hésitez pas à :
 4. Push sur la branche (`git push origin feature/amazing-feature`)
 5. Ouvrir une Pull Request
 
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## ✨ Crédits
 
-Développé avec ❤️ par [Votre Nom]
+Développé avec ❤️ et acharnement par Gregori Badiane & Moulaye Ba
