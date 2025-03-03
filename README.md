@@ -11,7 +11,12 @@ SkillTracker est une application web moderne pour suivre vos objectifs personnel
 - 📱 Design responsive
 - ⚡ Performance optimisée
 
-## 🚀 Technologies Utilisées
+## 🚀 Prérequis
+
+- [Node.js](https://nodejs.org/) (version 16 ou supérieure)
+- [npm](https://www.npmjs.com/) (inclus avec Node.js)
+
+## 🛠️ Technologies Utilisées
 
 - [Next.js](https://nextjs.org/) - Framework React
 - [Prisma](https://www.prisma.io/) - ORM pour la base de données
@@ -23,8 +28,8 @@ SkillTracker est une application web moderne pour suivre vos objectifs personnel
 
 1. Clonez le dépôt :
 ```bash
-git clone https://github.com/votre-username/skilltracker.git
-cd skilltracker
+git clone https://github.com/thegoatcrseven/Skill-Track.git
+cd Skill-Track
 ```
 
 2. Installez les dépendances :
