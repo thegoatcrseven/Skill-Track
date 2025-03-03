@@ -2,6 +2,26 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Constantes pour les statuts valides
+const VALID_STATUSES = ['IN_PROGRESS', 'COMPLETED'];
+
+// Fonction pour normaliser un statut
+const normalizeStatus = (status) => {
+  const normalized = status?.toUpperCase();
+  return VALID_STATUSES.includes(normalized) ? normalized : 'IN_PROGRESS';
+};
+
+// Fonction pour formater un goal avant de le renvoyer
+const formatGoal = (goal) => {
+  return {
+    ...goal,
+    status: normalizeStatus(goal.status),
+    dueDate: goal.dueDate ? goal.dueDate.toISOString() : null,
+    createdAt: goal.createdAt.toISOString(),
+    updatedAt: goal.updatedAt.toISOString()
+  };
+};
+
 export default async function handler(req, res) {
   const startTime = Date.now();
   console.log('=== Starting API request ===');
@@ -19,15 +39,13 @@ export default async function handler(req, res) {
           }
         });
         
-        console.log('Goals fetched:', goals.length);
-        return res.status(200).json(goals);
+        // Formater chaque goal avant de le renvoyer
+        const formattedGoals = goals.map(formatGoal);
+        
+        console.log('Goals fetched:', formattedGoals.length);
+        return res.status(200).json(formattedGoals);
       } catch (error) {
-        console.error('Database error while fetching goals:', {
-          error: error.message,
-          name: error.name,
-          code: error.code,
-          stack: error.stack
-        });
+        console.error('Database error while fetching goals:', error);
         return res.status(500).json({ 
           error: 'Failed to fetch goals',
           details: error.message
@@ -38,35 +56,31 @@ export default async function handler(req, res) {
     // POST /api/goals - Créer un nouveau goal
     if (req.method === 'POST') {
       console.log('Processing POST request');
-      const { title, description, dueDate } = req.body;
+      const { title, description, dueDate, status } = req.body;
       
       console.log('Request body:', req.body);
       
-      if (!title) {
-        console.log('Title is missing in request body');
-        return res.status(400).json({ error: 'Title is required' });
+      if (!title?.trim()) {
+        console.log('Title is missing or empty in request body');
+        return res.status(400).json({ error: 'Title is required and cannot be empty' });
       }
 
       try {
         console.log('Creating goal in database...');
         const goal = await prisma.goal.create({
           data: {
-            title,
-            description,
+            title: title.trim(),
+            description: description?.trim() || null,
             dueDate: dueDate ? new Date(dueDate) : null,
-            status: 'IN_PROGRESS'
+            status: normalizeStatus(status)
           }
         });
         
-        console.log('Goal created successfully:', goal);
-        return res.status(201).json(goal);
+        const formattedGoal = formatGoal(goal);
+        console.log('Goal created successfully:', formattedGoal);
+        return res.status(201).json(formattedGoal);
       } catch (error) {
-        console.error('Database error while creating goal:', {
-          error: error.message,
-          name: error.name,
-          code: error.code,
-          stack: error.stack
-        });
+        console.error('Database error while creating goal:', error);
         return res.status(500).json({ 
           error: 'Failed to create goal',
           details: error.message
@@ -80,12 +94,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
     
   } catch (error) {
-    console.error('Unhandled API error:', {
-      error: error.message,
-      name: error.name,
-      code: error.code,
-      stack: error.stack
-    });
+    console.error('Unhandled API error:', error);
     return res.status(500).json({ 
       error: 'Internal server error',
       details: error.message
